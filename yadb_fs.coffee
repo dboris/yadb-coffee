@@ -53,14 +53,14 @@ class YadbFS
   readFixedArray: (pos, count, unitsize) ->
     bufsize = unitsize * count
     throw "array size exceeds file size" if bufsize > @size && @size
-    items = new Buffer bufsize
-    switch unitsize
-      when 1 then func = items.readUInt8
-      when 2 then func = items.readUInt16BE
-      when 4 then func = items.readUInt32BE
+    buf = new Buffer bufsize
+    func = switch unitsize
+      when 1 then buf.readUInt8
+      when 2 then buf.readUInt16BE
+      when 4 then buf.readUInt32BE
       else throw "unsupported integer size"
-    fs.readSync(@handle, items, 0, bufsize, pos)
-    func.call(items, i * unitsize) for i in [0..items.length / unitsize] by 1
+    fs.readSync(@handle, buf, 0, bufsize, pos)
+    func.call(buf, i * unitsize) for i in [0..buf.length / unitsize] by 1
 
   free: -> fs.closeSync @handle
 
